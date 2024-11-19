@@ -11,7 +11,7 @@ class LearningRule(ABC):
 class HebbianRule(LearningRule):
     def __call__(self, neuron_amount: int, patterns: list[np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
         weights = np.zeros((neuron_amount, neuron_amount))
-        bias = np.zeros((neuron_amount, 1))
+        bias = np.zeros((neuron_amount,))
         for x in patterns:
             weights += np.outer(x, x) - np.eye(neuron_amount)
             bias += x
