@@ -1,5 +1,5 @@
 from hopfield.base import Hopfield
-from hopfield.rules import HebbianRule
+from hopfield.rules import HebbianRule, OjiRule
 from hopfield.helpers import plot_pattern_evolution
 
 from typing import cast
@@ -7,7 +7,7 @@ import numpy as np
 
 pattern = np.genfromtxt("data/projekt2/small-7x7.csv", delimiter=",")[0]
 
-model = Hopfield((7, 7), HebbianRule(), 0)
+model = Hopfield((7, 7), OjiRule(1), 0)
 model.train([pattern])
 
 damaged_pattern = pattern
