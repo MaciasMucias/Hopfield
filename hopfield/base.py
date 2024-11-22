@@ -20,13 +20,13 @@ class Hopfield:
         self.weights, self.bias = self.learning_rule(self.total_neurons, patterns)
 
     def get_new_pattern_synchronous(self, pattern: np.ndarray) -> np.ndarray:
-        return (np.dot(self.weights, pattern) >= 0).astype(int)
+        return 2 * (np.dot(self.weights, pattern) >= 0).astype(int) - 1
 
     def get_new_pattern_asynchronous(self, pattern: np.ndarray) -> np.ndarray:
         neuron_idx = list(range(self.total_neurons))
         self.rng.shuffle(neuron_idx)
         for i in neuron_idx:
-            pattern[i] = (np.dot(self.weights[i], pattern) >= 0).astype(int)
+            pattern[i] = 2 * (np.dot(self.weights[i], pattern) >= 0).astype(int) - 1
         return pattern
 
     def predict(
