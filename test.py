@@ -13,6 +13,6 @@ model.train([pattern])
 damaged_pattern = pattern
 damaged_pattern[:40] = -1
 
-_, history = model.predict(damaged_pattern, "synchronous", save_history=True)
+_, history = model.predict(damaged_pattern, "asynchronous", save_history=True)
 history = cast(list[np.ndarray], history)
 plot_pattern_evolution(history, (7, 7))

@@ -1,5 +1,6 @@
 import numpy as np
 from typing import Literal, Optional, cast
+from copy import copy
 
 from .rules import LearningRule
 
@@ -33,7 +34,7 @@ class Hopfield:
         self, pattern: np.ndarray, update_procedure: Literal["synchronous", "asynchronous"], *, save_history: bool
     ) -> tuple[np.ndarray, Optional[list[np.ndarray]]]:
         if save_history:
-            patterns_history = [pattern]
+            patterns_history = [copy(pattern)]
         else:
             patterns_history = None
         encountered_patterns = set()
@@ -52,6 +53,6 @@ class Hopfield:
                 patterns_history.append(pattern)
             if pattern_hash in encountered_patterns:
                 break
-            encountered_patterns.add(pattern_hash)
+            encountered_patterns.add(copy(pattern_hash))
 
         return pattern, patterns_history
