@@ -12,7 +12,7 @@
   - Pośród zbiorów są dwa, które zawierają prawie identyczne wzory (jeden w wersji 25×25 i drugi w wersji 25×50).
   - Dlaczego skuteczność odzyskiwania różni się znacząco na tych zbiorach?
 
-- **Skuteczność odzyskiwania z uszkodzonego wejścia**:
+- **Skuteczność odzyskiwania z uszkodzonego wejścia (W toku)**:
   - Jaka jest skuteczność odzyskiwania oryginałów z uszkodzonego wejścia w zależności od liczności i rodzaju zbioru?
 
 - **Porównanie zbiorów podobnych i zróżnicowanych**:
