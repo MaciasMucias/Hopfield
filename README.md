@@ -8,7 +8,7 @@
   - W których przypadkach wzorce uczące nie są stanami stabilnymi i dlaczego? 
     - [Uzasadnienie w raporcie należy odnieść do istniejących prac na temat sieci Hopfielda.]
 
-- **Porównanie wzorców o różnych wymiarach (W toku)**:
+- **Porównanie wzorców o różnych wymiarach (Zrobione)**:
   - Pośród zbiorów są dwa, które zawierają prawie identyczne wzory (jeden w wersji 25×25 i drugi w wersji 25×50).
   - Dlaczego skuteczność odzyskiwania różni się znacząco na tych zbiorach?
 
