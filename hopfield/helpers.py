@@ -24,6 +24,7 @@ def plot_pattern_evolution(patterns: list[np.ndarray], shape: tuple[int, int]) -
     slider.on_changed(update)
     plt.show()
 
+
 def first_last_frame(patterns: list[np.ndarray], shape: tuple[int, int]) -> None:
 
     if len(patterns) > 1:
@@ -47,3 +48,9 @@ def first_last_frame(patterns: list[np.ndarray], shape: tuple[int, int]) -> None
 
     plt.tight_layout()
     plt.show()
+
+
+def plot_pattern_evolution(output_pattern: np.ndarray, expected_pattern: np.ndarray, shape: tuple[int, int]) -> float:
+    total_bits = expected_pattern.size
+    wrong_bits = np.count_nonzero(expected_pattern - output_pattern)
+    return wrong_bits / total_bits
