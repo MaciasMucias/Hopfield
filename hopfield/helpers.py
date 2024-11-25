@@ -53,10 +53,14 @@ def first_last_frame(patterns: list[np.ndarray], shape: tuple[int, int]) -> None
     plt.show()
 
 
-def pattern_completion_error(output_pattern: np.ndarray, expected_pattern: np.ndarray, shape: tuple[int, int]) -> float:
+def pattern_completion_error(output_pattern: np.ndarray, expected_pattern: np.ndarray) -> float:
     total_bits = expected_pattern.size
     wrong_bits = np.count_nonzero(expected_pattern - output_pattern)
-    return wrong_bits / total_bits
+    # pattern may be a negative, error should be 0 then
+    # from this we can reason that the max error should be 0.5
+    raw_error = wrong_bits / total_bits
+    # Map error from key points 0, 0.5, 1 -> 0, 0.5, 0
+    return -(abs(raw_error - 1 / 2) - 1 / 2)
 
 
 def average_pattern_completion_error(
@@ -66,25 +70,18 @@ def average_pattern_completion_error(
     noise_ratio: float,
     it_per_pattern: int = 100,
 ) -> list[float]:
-    model.train(patterns)
-    shape = (model.width, model.height)
-
+    shape = (model.width * model.height,)
     errors = []
     for pattern in patterns:
         model_error = 0
         for _ in range(it_per_pattern):
+            model.train(patterns)
             destroyed_pattern = np.where(
                 model.rng.choice([True, False], size=shape, p=[noise_ratio, 1 - noise_ratio]), 0, pattern
             )
-            recovered_pattern = model.predict(destroyed_pattern, update_procedure, False)
+            recovered_pattern, _ = model.predict(destroyed_pattern, update_procedure, save_history=False)
 
-            # pattern may be a negative, error should be 0 then
-            # from this we can reason that the max error should be 0.5
-            raw_error = pattern_completion_error(recovered_pattern, pattern)
-
-            # Map error from key points 0, 0.5, 1 -> 0, 0.5, 0
-            model_error += -(abs(raw_error - 1 / 2) - 1 / 2)
+            model_error += pattern_completion_error(recovered_pattern, pattern)
 
         errors.append(model_error / it_per_pattern)
-
     return errors

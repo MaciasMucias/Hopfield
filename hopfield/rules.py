@@ -42,12 +42,16 @@ class OjiRule(NondeterministicLearningRule):
     def __call__(self, neuron_amount: int, patterns: list[np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
         weights_shape = (neuron_amount, neuron_amount)
         mask = np.ones(weights_shape) - np.eye(*weights_shape)
-        weights = self.rng.standard_normal(size=weights_shape) * 0.001 * mask
+        weights = np.abs(self.rng.standard_normal(size=weights_shape)) * 0.00001 * mask
         bias = np.zeros((neuron_amount,))
+
+        effective_lr = self.lr / len(patterns)
 
         for x in patterns:
             y = weights.T @ x
-            weights += self.lr * np.outer(x - weights @ y, y) * mask
+            if np.any(np.isnan(y)):
+                raise RuntimeError("Weight explosion")
+            weights += effective_lr * np.outer(x - weights @ y, y) * mask
             bias += x
 
-        return weights / len(patterns), bias / len(patterns)
+        return weights, bias / len(patterns)
