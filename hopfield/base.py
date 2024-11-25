@@ -38,7 +38,7 @@ class Hopfield:
         self, pattern: np.ndarray, update_procedure: Literal["synchronous", "asynchronous"], *, save_history: bool
     ) -> tuple[np.ndarray, Optional[list[np.ndarray]]]:
         if save_history:
-            patterns_history = [copy(pattern)]
+            patterns_history = [pattern]
         else:
             patterns_history = None
         encountered_patterns = set()
@@ -47,7 +47,7 @@ class Hopfield:
             if update_procedure == "synchronous":
                 pattern = self.get_new_pattern_synchronous(pattern)
             elif update_procedure == "asynchronous":
-                pattern = self.get_new_pattern_asynchronous(pattern)
+                pattern = self.get_new_pattern_asynchronous(copy(pattern))
             else:
                 raise ValueError(f"update_procedure does not support value: {update_procedure}")
 
@@ -57,6 +57,6 @@ class Hopfield:
                 patterns_history.append(pattern)
             if pattern_hash in encountered_patterns:
                 break
-            encountered_patterns.add(copy(pattern_hash))
+            encountered_patterns.add(pattern_hash)
 
         return pattern, patterns_history
