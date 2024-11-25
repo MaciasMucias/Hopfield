@@ -4,12 +4,22 @@ import numpy as np
 
 
 class LearningRule(ABC):
+    is_deterministic: bool
+
     @abstractmethod
     def __call__(self, neuron_amount: int, patterns: list[np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
         pass
 
 
+class NondeterministicLearningRule(LearningRule):
+    @abstractmethod
+    def set_rng(self, rng: np.random.Generator) -> None:
+        pass
+
+
 class HebbianRule(LearningRule):
+    is_deterministic = True
+
     def __call__(self, neuron_amount: int, patterns: list[np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
         weights = np.zeros((neuron_amount, neuron_amount))
         bias = np.zeros((neuron_amount,))
@@ -20,13 +30,14 @@ class HebbianRule(LearningRule):
         return weights / len(patterns), bias / len(patterns)
 
 
-class OjiRule(LearningRule):
-    def __init__(self, lr: float, *, seed: Optional[int] = None):
+class OjiRule(NondeterministicLearningRule):
+    is_deterministic = False
+
+    def __init__(self, lr: float) -> None:
         self.lr = lr
-        if seed is None:
-            seed = np.random.randint(0, 2**31 - 1)
-            print(f"{seed=}")
-        self.rng = np.random.default_rng(seed)
+
+    def set_rng(self, rng: np.random.Generator) -> None:
+        self.rng = rng
 
     def __call__(self, neuron_amount: int, patterns: list[np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
         weights_shape = (neuron_amount, neuron_amount)

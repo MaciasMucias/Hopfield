@@ -2,7 +2,7 @@ import numpy as np
 from typing import Literal, Optional, cast
 from copy import copy
 
-from .rules import LearningRule
+from .rules import LearningRule, NondeterministicLearningRule
 
 
 class Hopfield:
@@ -16,6 +16,10 @@ class Hopfield:
             print(f"{seed=}")
 
         self.rng = np.random.default_rng(seed)
+
+        if not self.learning_rule.is_deterministic:
+            self.learning_rule = cast(NondeterministicLearningRule, self.learning_rule)
+            self.learning_rule.set_rng(self.rng)
 
     def train(self, patterns: list[np.ndarray]) -> None:
         self.weights, self.bias = self.learning_rule(self.total_neurons, patterns)
