@@ -50,7 +50,7 @@ def first_last_frame(patterns: list[np.ndarray], shape: tuple[int, int]) -> None
     plt.show()
 
 
-def plot_pattern_evolution(output_pattern: np.ndarray, expected_pattern: np.ndarray, shape: tuple[int, int]) -> float:
+def pattern_completion_error(output_pattern: np.ndarray, expected_pattern: np.ndarray, shape: tuple[int, int]) -> float:
     total_bits = expected_pattern.size
     wrong_bits = np.count_nonzero(expected_pattern - output_pattern)
     return wrong_bits / total_bits

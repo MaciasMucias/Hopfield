@@ -1,6 +1,6 @@
 ## Zagadnienia do sprawdzenia
 
--  [ ] **Skuteczność reguł uczenia**:
+-  [ ] **Skuteczność reguł uczenia (Rozpoczęte)**:
   - Skuteczność każdej z reguł uczenia i jej wpływ na liczbę stabilnych wzorców uczących.
 
 - [ ] **Analiza zbiorów wzorców**:
