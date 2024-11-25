@@ -23,3 +23,27 @@ def plot_pattern_evolution(patterns: list[np.ndarray], shape: tuple[int, int]) -
 
     slider.on_changed(update)
     plt.show()
+
+def first_last_frame(patterns: list[np.ndarray], shape: tuple[int, int]) -> None:
+
+    if len(patterns) > 1:
+        patterns = [patterns[0], patterns[-1]]
+    else:
+        patterns = [patterns[0]]
+
+    patterns = [((x + 1) / 2).reshape(shape) for x in patterns]
+
+    frames = len(patterns)
+    fig_height = 2 * frames
+    fig, axes = plt.subplots(nrows=frames, ncols=1, figsize=(6, fig_height))
+
+    if frames == 1:
+        axes = [axes]
+
+    for idx, (pattern, ax) in enumerate(zip(patterns, axes)):
+        cax = ax.matshow(pattern, cmap="binary")
+        ax.set_title(f"{'First' if idx == 0 else 'Last'} Frame")
+        ax.axis("off")
+
+    plt.tight_layout()
+    plt.show()
