@@ -33,8 +33,9 @@ class HebbianRule(LearningRule):
 class OjiRule(NondeterministicLearningRule):
     is_deterministic = False
 
-    def __init__(self, lr: float) -> None:
+    def __init__(self, lr: float, epochs) -> None:
         self.lr = lr
+        self.epochs = epochs
 
     def set_rng(self, rng: np.random.Generator) -> None:
         self.rng = rng
@@ -45,13 +46,14 @@ class OjiRule(NondeterministicLearningRule):
         weights = np.abs(self.rng.standard_normal(size=weights_shape)) * 0.00001 * mask
         bias = np.zeros((neuron_amount,))
 
-        effective_lr = self.lr / len(patterns)
+        effective_lr = self.lr / len(patterns) / self.epochs
 
-        for x in patterns:
-            y = weights.T @ x
-            if np.any(np.isnan(y)):
-                raise RuntimeError("Weight explosion")
-            weights += effective_lr * np.outer(x - weights @ y, y) * mask
-            bias += x
+        for _ in range(self.epochs):
+            for x in patterns:
+                y = weights.T @ x
+                if np.any(np.isnan(y)):
+                    raise RuntimeError("Weight explosion")
+                weights += effective_lr * np.outer(x - weights @ y, y) * mask
+                bias += x
 
-        return weights, bias / len(patterns)
+        return weights, bias / len(patterns) / self.epochs

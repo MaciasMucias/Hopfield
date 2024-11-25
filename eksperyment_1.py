@@ -15,6 +15,7 @@ class EvalConfig(TypedDict):
 
 def evaluate_hebbian(config: EvalConfig, patterns: Sequence[np.ndarray]) -> dict:
     model = Hopfield(config["shape"], HebbianRule(), config["seed"])
+    model.train(patterns)
     errors = evaluate_model(model, patterns, config)
     return {"errors": errors, "mean_error": np.mean(errors)}
 
@@ -22,7 +23,8 @@ def evaluate_hebbian(config: EvalConfig, patterns: Sequence[np.ndarray]) -> dict
 def evaluate_oja(config: EvalConfig, patterns: Sequence[np.ndarray], learning_rates: np.ndarray) -> dict:
     results = []
     for lr in learning_rates:
-        model = Hopfield(config["shape"], OjiRule(lr=lr), config["seed"])
+        model = Hopfield(config["shape"], OjiRule(lr=lr, epochs=5), config["seed"])
+        model.train(patterns)
         errors = evaluate_model(model, patterns, config)
         results.append({"lr": lr, "errors": errors, "mean_error": np.mean(errors)})
 
@@ -40,7 +42,6 @@ def evaluate_model(model: Hopfield, patterns: Sequence[np.ndarray], config: Eval
 
 
 def evaluate_pattern(model: Hopfield, pattern: np.ndarray, noise_ratio: float) -> float:
-    model.train([pattern])
     corrupted = pattern.copy()
     mask = np.random.random(pattern.shape) < noise_ratio
     corrupted[mask] *= -1
@@ -84,8 +85,9 @@ def plot_rule_comparison(hebbian_results: dict, oja_results: dict, pattern_count
 def visualize_letter_patterns(model: Hopfield, patterns: list[np.ndarray], config: EvalConfig) -> None:
     import string
 
-    rows, cols = 5, 6
-    fig, axes = plt.subplots(rows, cols, figsize=(20, 15))
+    cols = 6
+    rows = int(np.ceil(len(patterns) / cols))
+    fig, axes = plt.subplots(rows, cols, figsize=(20, 15), squeeze=False)
 
     for i, (pattern, letter) in enumerate(zip(patterns, string.ascii_uppercase)):
         row, col = i // cols, i % cols
@@ -93,12 +95,12 @@ def visualize_letter_patterns(model: Hopfield, patterns: list[np.ndarray], confi
 
         # Create corrupted pattern
         corrupted = pattern.copy()
-        mask = np.random.random(pattern.shape) < config["noise_ratio"]
+        mask = model.rng.random(pattern.shape) < config["noise_ratio"]
         corrupted[mask] *= -1
 
         # Get prediction
         result, _ = model.predict(corrupted, "synchronous", save_history=False)
-        error = min(np.mean(result != pattern), np.mean(result != -pattern)) / 2
+        error = min(np.mean(result != pattern), np.mean(result != -pattern))
 
         # Show original, corrupted and predicted side by side
         combined = np.hstack(
@@ -124,7 +126,7 @@ def main():
     config: EvalConfig = {"shape": (20, 14), "noise_ratio": 0.1, "iterations": 1, "seed": 0}
 
     hebbian_results = evaluate_hebbian(config, patterns)
-    oja_results = evaluate_oja(config, patterns, np.logspace(-4, -1, 50))
+    oja_results = evaluate_oja(config, patterns, np.logspace(-4, 0, 50))
 
     plot_learning_rate_curve(oja_results)
     plot_rule_comparison(hebbian_results, oja_results, len(patterns))
@@ -132,7 +134,7 @@ def main():
     hebbian_model = Hopfield(config["shape"], HebbianRule(), config["seed"])
     hebbian_model.train(patterns)
 
-    oja_model = Hopfield(config["shape"], OjiRule(lr=0.4), config["seed"])
+    oja_model = Hopfield(config["shape"], OjiRule(lr=0.0233, epochs=5), config["seed"])
     oja_model.train(patterns)
 
     visualize_letter_patterns(hebbian_model, patterns, config)
