@@ -23,7 +23,7 @@ def evaluate_hebbian(config: EvalConfig, patterns: Sequence[np.ndarray]) -> dict
 def evaluate_oja(config: EvalConfig, patterns: Sequence[np.ndarray], learning_rates: np.ndarray) -> dict:
     results = []
     for lr in learning_rates:
-        model = Hopfield(config["shape"], OjiRule(lr=lr, epochs=5), config["seed"])
+        model = Hopfield(config["shape"], OjiRule(lr=lr), config["seed"])
         model.train(patterns)
         errors = evaluate_model(model, patterns, config)
         results.append({"lr": lr, "errors": errors, "mean_error": np.mean(errors)})
@@ -82,14 +82,14 @@ def plot_rule_comparison(hebbian_results: dict, oja_results: dict, pattern_count
     plt.show()
 
 
-def visualize_letter_patterns(model: Hopfield, patterns: list[np.ndarray], config: EvalConfig) -> None:
+def visualize_letter_patterns(model: Hopfield, patterns: list[np.ndarray], config: EvalConfig, title: str) -> None:
     import string
 
-    cols = 6
+    cols = 3
     rows = int(np.ceil(len(patterns) / cols))
     fig, axes = plt.subplots(rows, cols, figsize=(20, 15), squeeze=False)
 
-    for i, (pattern, letter) in enumerate(zip(patterns, string.ascii_uppercase)):
+    for i, pattern in enumerate(patterns):
         row, col = i // cols, i % cols
         ax = axes[row, col]
 
@@ -108,22 +108,22 @@ def visualize_letter_patterns(model: Hopfield, patterns: list[np.ndarray], confi
         )
 
         ax.imshow(combined, cmap="binary")
-        ax.set_title(f"Letter {letter}\nError: {error:.2f}")
+        ax.set_title(f"Error: {error:.2f}")
         ax.axis("off")
 
     # Clear unused subplots
-    for i in range(len(string.ascii_uppercase), rows * cols):
+    for i in range(len(patterns), rows * cols):
         row, col = i // cols, i % cols
         axes[row, col].axis("off")
 
-    plt.suptitle("Original vs Corrupted vs Predicted Patterns")
+    plt.suptitle(f"Original vs Corrupted vs Predicted Patterns for {title} method")
     plt.tight_layout()
     plt.show()
 
 
 def main():
-    patterns = np.genfromtxt("data/projekt2/letters-14x20.csv", delimiter=",")
-    config: EvalConfig = {"shape": (20, 14), "noise_ratio": 0.1, "iterations": 1, "seed": 0}
+    patterns = np.genfromtxt("data/projekt2/small-7x7.csv", delimiter=",")
+    config: EvalConfig = {"shape": (7, 7), "noise_ratio": 0.1, "iterations": 1, "seed": 0}
 
     hebbian_results = evaluate_hebbian(config, patterns)
     oja_results = evaluate_oja(config, patterns, np.logspace(-4, 0, 50))
@@ -134,11 +134,11 @@ def main():
     hebbian_model = Hopfield(config["shape"], HebbianRule(), config["seed"])
     hebbian_model.train(patterns)
 
-    oja_model = Hopfield(config["shape"], OjiRule(lr=0.0233, epochs=5), config["seed"])
+    oja_model = Hopfield(config["shape"], OjiRule(lr=0.02), config["seed"])
     oja_model.train(patterns)
 
-    visualize_letter_patterns(hebbian_model, patterns, config)
-    visualize_letter_patterns(oja_model, patterns, config)
+    visualize_letter_patterns(hebbian_model, patterns, config, "Hebb")
+    visualize_letter_patterns(oja_model, patterns, config, "Oja")
 
 
 if __name__ == "__main__":
